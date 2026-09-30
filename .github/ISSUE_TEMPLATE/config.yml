@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or debugging help
-    url: https://github.com/mahdibrr/awesome-nextjs-supabase/discussions/categories/q-a
+    url: https://github.com/mahdibrr/nextjs-supabase-production-incidents/discussions/categories/q-a
     about: Stuck on a production bug with no root cause yet? Ask in Discussions. If it turns out to be a new incident, it can become an incident report.
   - name: Idea or proposal
-    url: https://github.com/mahdibrr/awesome-nextjs-supabase/discussions/categories/ideas
+    url: https://github.com/mahdibrr/nextjs-supabase-production-incidents/discussions/categories/ideas
     about: Suggest a new incident area, runnable example or structural change before opening an issue.
   - name: Bug in Supabase itself
     url: https://github.com/supabase/supabase/issues

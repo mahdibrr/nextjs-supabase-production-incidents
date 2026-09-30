@@ -1,13 +1,13 @@
 max_retries = 2
 timeout = 20
-user_agent = "awesome-nextjs-supabase link checker"
+user_agent = "nextjs-supabase-production-incidents link checker"
 
 # Avoid false negatives from temporary rate limits while still catching normal
 # broken links.
 accept = [200, 204, 206, 301, 302, 429]
 
 exclude = [
-  "https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/link-check.yml/badge.svg",
+  "https://github.com/mahdibrr/nextjs-supabase-production-incidents/actions/workflows/link-check.yml/badge.svg",
   # Placeholder host used in curl examples (debugging playbooks). Never a real link.
   "https://your-domain.com/.*"
 ]

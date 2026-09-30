@@ -10,7 +10,7 @@ body:
         Thanks for taking the time to write this up. An incident is accepted when it is **reproducible or evidenced**, and when the root cause and fix are backed by **primary sources**: official docs, the upstream issue tracker, a changelog, or your own logs.
 
         Before you start:
-        - Search the [Production Incident Index](https://github.com/mahdibrr/awesome-nextjs-supabase/blob/main/reference/incident-index/README.md). If your incident is already listed, open a pull request that adds your evidence or fix to it instead.
+        - Search the [Production Incident Index](https://github.com/mahdibrr/nextjs-supabase-production-incidents/blob/main/reference/incident-index/README.md). If your incident is already listed, open a pull request that adds your evidence or fix to it instead.
         - Remove API keys, JWTs, connection strings, project refs you do not want public, and personal data from anything you paste.
 
         Fields are in the same order as the postmortems in `reference/playbooks/`. Partial reports are welcome: fill in what you know and say what you do not.

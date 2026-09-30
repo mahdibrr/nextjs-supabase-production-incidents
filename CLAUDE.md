@@ -1,4 +1,4 @@
-# CLAUDE.md — awesome-nextjs-supabase
+# CLAUDE.md — nextjs-supabase-production-incidents
 
 ## What This Repo Is
 

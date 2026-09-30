@@ -1,14 +1,14 @@
 # Next.js + Supabase Production Incidents
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Link Check](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/link-check.yml/badge.svg)](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/link-check.yml)
-[![Examples CI](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/examples-ci.yml/badge.svg)](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/examples-ci.yml)
+[![Link Check](https://github.com/mahdibrr/nextjs-supabase-production-incidents/actions/workflows/link-check.yml/badge.svg)](https://github.com/mahdibrr/nextjs-supabase-production-incidents/actions/workflows/link-check.yml)
+[![Examples CI](https://github.com/mahdibrr/nextjs-supabase-production-incidents/actions/workflows/examples-ci.yml/badge.svg)](https://github.com/mahdibrr/nextjs-supabase-production-incidents/actions/workflows/examples-ci.yml)
 
 **The bugs that appear after you deploy** — indexed by the symptom you see, with the root cause, the fix, and a way to prove the fix works.
 
 **24 incidents** (INC-001 to INC-024) · **11 postmortems** with detection queries · **3 runnable examples** that reproduce 13 of the incidents (5 pgTAP suites, 15 Vitest tests) · **7 checklists** · an RLS audit script.
 
-[Browse incidents](reference/incident-index/README.md) · [Run the examples](examples/README.md) · [Pre-deploy checklists](content/production-checklists/README.md) · [Report an incident](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml)
+[Browse incidents](reference/incident-index/README.md) · [Run the examples](examples/README.md) · [Pre-deploy checklists](content/production-checklists/README.md) · [Report an incident](https://github.com/mahdibrr/nextjs-supabase-production-incidents/issues/new?template=incident_report.yml)
 
 > **Building with AI coding tools?** Drop [`AGENTS.md`](AGENTS.md) (and [`.cursor/rules/`](.cursor/rules/nextjs-supabase-production.mdc)) into your repo so Cursor, Copilot, and Claude Code stop generating the RLS, SSR-session, and Stripe-webhook bugs that only surface in production.
 
@@ -298,7 +298,7 @@ Resources are selected for operational value, not volume.
 
 ## Contributing
 
-Pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for format and quality requirements. To add an incident, use the [incident report form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml); for broken links or curation gaps, open a PR or an issue.
+Pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for format and quality requirements. To add an incident, use the [incident report form](https://github.com/mahdibrr/nextjs-supabase-production-incidents/issues/new?template=incident_report.yml); for broken links or curation gaps, open a PR or an issue.
 
 Help is most needed in RLS incidents, deployment failures, Stripe reliability, Auth edge cases, and monitoring references.
 

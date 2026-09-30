@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This repository indexes production incidents. Resources are listed when they help someone diagnose, fix or prevent one. Please read the [contributing guide](https://github.com/mahdibrr/awesome-nextjs-supabase/blob/main/CONTRIBUTING.md) first.
+        This repository indexes production incidents. Resources are listed when they help someone diagnose, fix or prevent one. Please read the [contributing guide](https://github.com/mahdibrr/nextjs-supabase-production-incidents/blob/main/CONTRIBUTING.md) first.
 
         Paid and freemium products are allowed, but they go in **Tools and Services** with a pricing marker, and any affiliation must be disclosed below. Affiliate or referral links are not accepted.
 

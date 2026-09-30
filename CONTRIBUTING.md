@@ -4,11 +4,11 @@ This repository is a symptom-first index of Next.js + Supabase production incide
 
 ## Three ways to contribute
 
-1. **Report an incident.** Use the [incident form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml). You do not need to write the postmortem. A precise symptom, versions and evidence are enough to start.
+1. **Report an incident.** Use the [incident form](https://github.com/mahdibrr/nextjs-supabase-production-incidents/issues/new?template=incident_report.yml). You do not need to write the postmortem. A precise symptom, versions and evidence are enough to start.
 2. **Add evidence or a fix to an existing incident.** Open a pull request against its row in [`reference/incident-index/README.md`](reference/incident-index/README.md) or its postmortem in [`reference/playbooks/`](reference/playbooks/). Useful additions include a second reproduction, an upstream issue, a version where the behaviour changed, a detection query, or a test in [`examples/`](examples/README.md). This is usually the easiest place to start.
-3. **Suggest a resource.** Use the [resource form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=resource_request.yml), or open a pull request with the entry.
+3. **Suggest a resource.** Use the [resource form](https://github.com/mahdibrr/nextjs-supabase-production-incidents/issues/new?template=resource_request.yml), or open a pull request with the entry.
 
-To fix something wrong, use the [correction form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=correction.yml) or send a pull request. For questions, use [Discussions](https://github.com/mahdibrr/awesome-nextjs-supabase/discussions).
+To fix something wrong, use the [correction form](https://github.com/mahdibrr/nextjs-supabase-production-incidents/issues/new?template=correction.yml) or send a pull request. For questions, use [Discussions](https://github.com/mahdibrr/nextjs-supabase-production-incidents/discussions).
 
 ## What makes an incident acceptable
 
