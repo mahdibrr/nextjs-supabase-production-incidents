@@ -158,6 +158,7 @@ Practical, copy-ready assets maintained in this repo.
 - [Custom Claims and RBAC](https://supabase.com/docs/guides/database/postgres/custom-claims-and-role-based-access-control-rbac) - Role-based access via JWT claims and auth hooks for multi-tenant apps.
 - [User Management and Profiles](https://supabase.com/docs/guides/auth/managing-user-data) - Modeling a `public.profiles` table tied to `auth.users` without exposing the auth schema.
 - [PostgreSQL EXPLAIN](https://www.postgresql.org/docs/current/using-explain.html) - Query plan analysis for policy-heavy tables.
+- [RowShield](https://rowshield.dev) - Probes a deployed Supabase app for reachable and exposed data, then monitors connected projects for RLS and schema drift.
 
 ### Production Debugging
 
