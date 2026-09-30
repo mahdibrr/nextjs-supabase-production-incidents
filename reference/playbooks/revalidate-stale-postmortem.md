@@ -3,6 +3,8 @@
 Last verified: 2026-07-19
 Pinned to: Next.js 15 App Router (default caching semantics — `fetch` is **not** cached by default in 15; you must opt in via `cache: 'force-cache'`, `next: { revalidate }`, or `next: { tags }` for any of this to matter).
 
+> **Next.js 16 note:** the single-argument `revalidateTag('tag')` used below is deprecated in 16 and produces a TypeScript error — pass a `cacheLife` profile (`revalidateTag('posts', 'max')`, stale-while-revalidate), or use the new Server-Actions-only `updateTag('posts')` when the user must read their own write immediately. Source: [Next.js 16 upgrade guide — Caching APIs](https://nextjs.org/docs/app/guides/upgrading/version-16#caching-apis).
+
 ## Symptom
 
 A Server Action mutates the database, calls `revalidatePath('/dashboard')`, returns, the user reloads — and the UI still shows the pre-mutation state. No error thrown. The data in Postgres is correct (so it's not a write bug). The bug is in the cache invalidation, not the mutation.

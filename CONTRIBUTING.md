@@ -1,112 +1,78 @@
 # Contributing
 
-Thanks for helping improve Awesome Next.js Supabase Resources.
+This repository is a symptom-first index of Next.js + Supabase production incidents, with evidence, reference assets and runnable examples. It is maintained by one person, with an AI agent helping draft changes. Every merge is reviewed by the maintainer, and links are checked automatically in CI.
 
-This repository is meant to stay practical, neutral, and useful for developers building real production apps with Next.js, Supabase, PostgreSQL, RLS, Stripe, App Router, and related SaaS infrastructure.
+## Three ways to contribute
 
-## What Belongs Here
+1. **Report an incident.** Use the [incident form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml). You do not need to write the postmortem. A precise symptom, versions and evidence are enough to start.
+2. **Add evidence or a fix to an existing incident.** Open a pull request against its row in [`reference/incident-index/README.md`](reference/incident-index/README.md) or its postmortem in [`reference/playbooks/`](reference/playbooks/). Useful additions include a second reproduction, an upstream issue, a version where the behaviour changed, a detection query, or a test in [`examples/`](examples/README.md). This is usually the easiest place to start.
+3. **Suggest a resource.** Use the [resource form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=resource_request.yml), or open a pull request with the entry.
 
-Good additions are:
+To fix something wrong, use the [correction form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=correction.yml) or send a pull request. For questions, use [Discussions](https://github.com/mahdibrr/awesome-nextjs-supabase/discussions).
 
-- Official documentation for core platform behavior.
-- Maintained open-source examples, starter kits, and tools.
-- Practical guides with working implementation details.
-- Debugging playbooks for real production failures.
-- Architecture resources that explain tradeoffs clearly.
-- Security, RLS, Auth, deployment, CI/CD, testing, performance, AI, pgvector, and SaaS resources.
+## What makes an incident acceptable
 
-## What Does Not Belong Here
+- **It happened in production or in a production-like deployment**, not only in local development.
+- **It is reproducible or evidenced.** It needs one of: a reproduction (steps or a failing test), logs or traces from the incident, or an upstream issue or official doc that describes the same failure.
+- **The root cause and fix cite primary sources.** That means official documentation, the upstream issue tracker, changelogs or release notes. A blog post can add context but cannot be the only source.
+- **Versions are stated.** Next.js, `@supabase/supabase-js`, `@supabase/ssr` and anything else involved. Many incidents only exist in certain versions.
+- **It is not already covered.** If it is close to an existing INC-0xx entry, add to that entry instead.
 
-Please avoid:
+An incident with an unknown root cause is still welcome as a report. It is added to the index once the cause is confirmed.
 
-- Generic listicles with no implementation value.
-- Thin AI-generated filler.
-- Duplicate resources that cover the same topic without adding depth.
-- Resources unrelated to Next.js, Supabase, PostgreSQL, SaaS, or production engineering.
-- Keyword-stuffed descriptions.
-- Broken links, redirects to spam, or gated pages with no useful preview.
-- Personal projects that are unmaintained or mostly promotional.
+Do not attribute a fix to a release unless a source names that release. "Fixed in PR #123" can be checked. "Shipped in version X" is a separate claim and needs its own source.
 
-## How To Suggest A Resource
+## What makes a resource acceptable
 
-Open an issue or submit a pull request with:
+A resource is listed when it helps someone diagnose, fix or prevent a production problem on this stack. Please avoid:
 
-- Resource title.
-- URL.
-- Suggested section.
-- Short reason it belongs.
-- The production problem, workflow, or tradeoff it helps with.
+- generic listicles or thin AI-generated content;
+- duplicates, unless they solve a different production problem;
+- tutorial-only material with no production applicability;
+- abandoned repositories, unless the entry carries a clear warning;
+- anything unrelated to Next.js, Supabase, PostgreSQL, SaaS or production engineering;
+- keyword-stuffed or promotional descriptions;
+- broken links, redirects to spam, or pages behind a login or payment wall.
 
-Example:
+Prefer official docs and maintained repositories over personal articles when both cover the same point.
 
-```md
-Title: Supabase Row Level Security
-URL: https://supabase.com/docs/guides/database/postgres/row-level-security
-Section: Database, RLS, and PostgreSQL
-Why it belongs: Official reference for authorization policies.
-Production value: Helps debug empty results, blocked writes, and tenant isolation bugs.
-```
+### Paid products and affiliation
 
-## How To Suggest A Production Incident
+- **Paid and freemium products** go in **Tools and Services**, not in the Curated Resources sections that list docs and open-source material. Their entry carries a pricing marker: `(freemium)` for a free tier with paid plans, `(paid)` for paid only.
+- **Disclose any affiliation** in the issue or pull request: author, employee, founder, or paid or sponsored in any way. Disclosure does not count against a suggestion. Undisclosed affiliation is a reason to close it.
+- **Affiliate and referral links are not accepted.**
+- These rules apply to the maintainer's own content as well.
 
-Open an issue using this format for the Production Incident Index:
+## Formats
+
+Curated Resources bullet:
 
 ```md
-Symptom:
-Supabase returns an empty array even though rows exist.
-
-Root cause:
-RLS is enabled, but no `select` policy matches the authenticated role.
-
-Fix:
-Add a scoped `select` policy and test as the real authenticated user.
-
-Verification:
-Run the same query with the anon/authenticated client, not the service role key.
-
-Reference:
-https://supabase.com/docs/guides/database/postgres/row-level-security
+- [Resource Name](https://example.com) - Short, neutral description of the production problem it helps with.
 ```
 
-## Formatting Conventions
-
-- Use one Markdown bullet per resource.
-- Use this resource format in the README:
+Tools and Services row:
 
 ```md
-- [Resource Name](https://example.com) - Short neutral description.
+| [Tool Name](https://example.com) (freemium) | What it solves, in one line. |
 ```
 
-- Keep descriptions short, concrete, and neutral.
-- Use `Next.js`, `Supabase`, `PostgreSQL`, `Vercel`, `RLS`, `Auth`, and `App Router` consistently.
-- Prefer official docs and maintained repositories over personal articles when both cover the same point.
-- Do not add duplicate links.
-- Place resources in the most specific section.
+Incident index row: follow the existing columns in [`reference/incident-index/README.md`](reference/incident-index/README.md). A postmortem in `reference/playbooks/` uses the sections of the existing ones: symptom, impact, root cause, detection, fix, prevention, references and a "Last verified" date.
 
-## Review Criteria
+Use `Next.js`, `Supabase`, `PostgreSQL`, `Vercel`, `RLS`, `Auth` and `App Router` consistently. Small, focused pull requests are the easiest to review. The link checker runs on every pull request and must pass.
 
-Pull requests are reviewed for:
+## Response times
 
-- Relevance to the repository scope.
-- Practical implementation or debugging value.
-- Link quality and permanence.
-- Maintenance status.
-- Clear title and description.
-- No duplicate or low-value entries.
-- Neutral, ecosystem-first wording.
+- **First reply to a new issue or pull request: within 7 days.** It may be a question, a request for evidence, or a decision.
+- **A decision (merge, change requested or close with a reason) within 14 days** of the pull request being ready.
+- If you have heard nothing after 7 days, comment on the thread to bring it back up. That is welcome, not rude.
 
-Small, focused pull requests are easiest to review.
+These are targets set by one person working on this in spare time, not a service agreement.
 
-## Looking For Contributors
+## Credit
 
-The most helpful areas right now are:
+- **Release notes.** Each release lists the contributors whose work it includes, by GitHub handle.
+- **Incident files.** A contributed incident, or evidence added to one, gets a credit line in the incident entry or postmortem, e.g. `Reported by @handle` or `Evidence: @handle`.
+- **Commits.** Pull requests are merged as they are where possible. If the maintainer has to re-land your change in a new pull request, your commit keeps a `Co-authored-by` trailer so it still counts towards your GitHub contributions.
 
-- RLS incidents and policy examples.
-- Deployment failures on Vercel and preview environments.
-- Maintained SaaS starter kits.
-- Monitoring, tracing, and uptime tools.
-- Supabase Auth edge cases around SSR cookies, OAuth, and magic links.
-- Stripe webhook reliability and subscription sync.
-- Realtime authorization and channel lifecycle issues.
-
-Check the [open issues](https://github.com/mahdibrr/awesome-nextjs-supabase/issues) for small starting points, or open a new one.
+You can ask for no credit in the form or the pull request.

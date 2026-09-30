@@ -46,8 +46,7 @@ Check:
 
 Useful resources:
 
-- [Why Your Supabase RLS Policies Are Silently Failing](https://www.iloveblogs.blog/post/supabase-rls-silent-failures-debug)
-- [Debugging Supabase RLS Issues](https://www.iloveblogs.blog/post/debugging-supabase-rls-issues)
+- [Supabase RLS Policy Not Working: Debug Checklist](https://www.iloveblogs.blog/guides/supabase-rls-policy-not-working-debug-checklist)
 
 ## Next.js Hydration Errors
 
@@ -81,7 +80,7 @@ Common symptoms:
 
 Check:
 
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set in the deployment platform.
+- `NEXT_PUBLIC_SUPABASE_URL` and the public key (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, or the legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY`, which Supabase is deprecating by the end of 2026) are set in the deployment platform.
 - Server-only secrets do not use the `NEXT_PUBLIC_` prefix.
 - Connection pooling is configured for serverless environments.
 - Route handlers do not create unnecessary long-lived connections.

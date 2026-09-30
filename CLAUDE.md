@@ -2,7 +2,7 @@
 
 ## What This Repo Is
 
-A curated **"awesome list"** of production-focused Next.js + Supabase resources, plus a small runnable `examples/` workspace. The core is a structured collection of links (guides, posts, snippets, checklists) organized for developers building real SaaS apps; `examples/` adds minimal broken-vs-fixed code you can run and verify in CI.
+A symptom-first index of Next.js + Supabase **production incidents** (reference/incident-index/, postmortems in reference/playbooks/), with a curated list of production-focused resources and a small runnable `examples/` workspace. It is no longer formatted as an awesome list (repositioned 2026-09-30); `examples/` adds minimal broken-vs-fixed code you can run and verify in CI.
 
 ---
 
@@ -16,7 +16,6 @@ CONTRIBUTING.md            # Contribution rules
 .lychee.toml               # Link-checker config (CI)
 .github/
   workflows/
-    awesome-lint.yml       # awesome-lint (required on main)
     link-check.yml         # lychee broken-link check (required on main)
     examples-ci.yml        # Vitest + pgTAP for examples/ (not required)
   ISSUE_TEMPLATE/
@@ -69,9 +68,8 @@ Resources must be specific to one or more of:
 
 ## CI
 
-- **awesome-lint** (`.github/workflows/awesome-lint.yml`): required on `main`. Enforces awesome-list rules (TOC, table-pipe alignment, no duplicate links, H1 badge style).
 - **Link checker** (`.github/workflows/link-check.yml`): required on `main`. Uses [lychee](https://github.com/lycheeverse/lychee) with config in `.lychee.toml`. Scans `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `content/`, `reference/`, and `.github/`. Accepts HTTP 200/204/206/301/302/429 (429 avoids false positives from rate limits). 2 retries, 20s timeout. The `reference/**`, `AGENTS.md`, and `CLAUDE.md` paths (plus the `your-domain.com` placeholder exclusion) were added so meta-doc/reference-only PRs trigger the check — it is a required gate.
-- **examples CI** (`.github/workflows/examples-ci.yml`): runs on `examples/**` changes. Vitest job (stripe + nextjs15 examples, no services) and pgTAP job (postgres:17 container, fixed RLS suite). Not a required gate — keeps the awesome-list gates light.
+- **examples CI** (`.github/workflows/examples-ci.yml`): runs on `examples/**` changes. Vitest job (stripe + nextjs15 examples, no services) and pgTAP job (postgres:17 container, fixed RLS suite). Not a required gate.
 
 ---
 
@@ -85,7 +83,7 @@ Resources must be specific to one or more of:
 | Production incidents catalogued | 21 |
 | Runnable examples | 3 |
 
-Counts are unique external URLs across `README.md`, `content/**`, `reference/**`, and `examples/**` (badge and placeholder hosts excluded). The `reference/` postmortems cite official docs as evidence, which raises the third-party share to roughly 15:1 over the blog; the awesome-list core (`README.md` + `content/**`) alone is closer to 11:1.
+Counts are unique external URLs across `README.md`, `content/**`, `reference/**`, and `examples/**` (badge and placeholder hosts excluded). The `reference/` postmortems cite official docs as evidence, which raises the third-party share to roughly 15:1 over the blog; the curated core (`README.md` + `content/**`) alone is closer to 11:1.
 
 ---
 

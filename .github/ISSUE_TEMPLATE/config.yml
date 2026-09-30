@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or debugging help
+    url: https://github.com/mahdibrr/awesome-nextjs-supabase/discussions/categories/q-a
+    about: Stuck on a production bug with no root cause yet? Ask in Discussions. If it turns out to be a new incident, it can become an incident report.
+  - name: Idea or proposal
+    url: https://github.com/mahdibrr/awesome-nextjs-supabase/discussions/categories/ideas
+    about: Suggest a new incident area, runnable example or structural change before opening an issue.
+  - name: Bug in Supabase itself
+    url: https://github.com/supabase/supabase/issues
+    about: Platform bugs belong in the Supabase tracker. Link the upstream issue here once it has a confirmed cause.
+  - name: Bug in Next.js itself
+    url: https://github.com/vercel/next.js/issues
+    about: Framework bugs belong in the Next.js tracker. Link the upstream issue here once it has a confirmed cause.

@@ -1,0 +1,65 @@
+name: Correction
+description: A wrong or outdated claim, a broken link, or a fix that does not work.
+title: "Correction: "
+labels:
+  - correction
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Corrections are among the most useful contributions here. A wrong fix in an incident costs someone real debugging time. Please point to a primary source (official docs, changelog, upstream issue, or a reproduction) for the correct version.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem?
+      options:
+        - A claim is wrong (root cause, fix, version, behaviour)
+        - A claim was true but is now outdated
+        - The fix or code does not work
+        - Broken link or link to the wrong page
+        - Duplicate or off-topic entry
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Where is it?
+      description: The file path and the incident number or heading.
+      placeholder: reference/incident-index/README.md, INC-020
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Quote the exact text.
+    validations:
+      required: true
+
+  - type: textarea
+    id: correct
+    attributes:
+      label: What it should say
+      description: Your proposed wording, or "remove it".
+    validations:
+      required: true
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: Evidence
+      description: Links to primary sources, the version where the behaviour changed, or the steps and output of a reproduction.
+    validations:
+      required: true
+
+  - type: input
+    id: credit
+    attributes:
+      label: How should we credit you? (optional)
+      description: The name or handle for the release notes. Write "no credit" if you prefer.
+    validations:
+      required: false

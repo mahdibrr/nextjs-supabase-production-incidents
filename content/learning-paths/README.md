@@ -20,7 +20,7 @@ Start here if you are still learning how the stack fits together.
 
 - Learn Next.js App Router routing, layouts, and loading states.
 - Learn when to use Server Components versus Client Components.
-- Create a Supabase project and understand project URL, anon key, and service role key.
+- Create a Supabase project and understand the project URL, the publishable and secret keys, and the legacy anon and service role keys they replace ([being deprecated by the end of 2026](https://supabase.com/docs/guides/api/api-keys)).
 - Build a small CRUD app with one table.
 - Enable Row Level Security before adding real user data.
 - Deploy a simple version to Vercel.
@@ -73,7 +73,7 @@ Recommended resources:
 - [Playwright](https://playwright.dev/docs/intro)
 - [Multi-Tenant SaaS Architecture with Next.js and Supabase](https://www.iloveblogs.blog/guides/nextjs-supabase-multi-tenant-saas-architecture)
 - [Supabase Connection Pooling with PgBouncer on Vercel](https://www.iloveblogs.blog/guides/supabase-connection-pooling-vercel)
-- [Mastering Supabase pgvector for Semantic Search in Next.js](https://www.iloveblogs.blog/guides/nextjs-supabase-pgvector-advanced-search)
+- [Production RAG with Supabase pgvector and Next.js](https://www.iloveblogs.blog/guides/production-rag-supabase-pgvector-nextjs)
 
 ## External Production Resources
 

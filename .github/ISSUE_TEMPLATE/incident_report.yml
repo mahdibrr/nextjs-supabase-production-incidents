@@ -1,75 +1,150 @@
-name: Incident report
-description: Add a new entry to the Production Incident Index (reference/incident-index/README.md).
+name: Report a production incident
+description: A Next.js + Supabase failure you hit in production, with the evidence to back it up.
 title: "Incident: "
 labels:
-  - documentation
-  - enhancement
+  - incident
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to write this up. An incident is accepted when it is **reproducible or evidenced**, and when the root cause and fix are backed by **primary sources**: official docs, the upstream issue tracker, a changelog, or your own logs.
+
+        Before you start:
+        - Search the [Production Incident Index](https://github.com/mahdibrr/awesome-nextjs-supabase/blob/main/reference/incident-index/README.md). If your incident is already listed, open a pull request that adds your evidence or fix to it instead.
+        - Remove API keys, JWTs, connection strings, project refs you do not want public, and personal data from anything you paste.
+
+        Fields are in the same order as the postmortems in `reference/playbooks/`. Partial reports are welcome: fill in what you know and say what you do not.
+
   - type: input
     id: title
     attributes:
       label: Incident title
-      description: Short, symptom-first label. The pattern is "Symptom: root-cause clue".
-      placeholder: Webhook returns 200 OK but business state is wrong
+      description: Symptom first, as someone would search for it.
+      placeholder: Supabase returns an empty array for rows that exist
     validations:
       required: true
-  - type: dropdown
-    id: stack
-    attributes:
-      label: Stack layer
-      description: Which part of the stack is the failure on?
-      options:
-        - Next.js
-        - Supabase
-        - Supabase + PostgreSQL
-        - Next.js + Supabase
-        - Stripe
-        - Stripe + Supabase
-        - Next.js + Supabase + Stripe
-        - Supabase + PostgreSQL + RLS
-        - Other
-    validations:
-      required: true
+
   - type: textarea
     id: symptom
     attributes:
       label: Symptom
-      description: What did the operator observe? Use first-person signals (error, log line, user report).
+      description: The exact error message, status code or behaviour you observed, and where you saw it (browser, server logs, Postgres logs, Stripe dashboard). Paste error text verbatim.
       placeholder: |
-        Stripe returned 200 OK on every retry, but the customer's entitlement was granted twice and the ledger row was missing.
+        `select` from the browser client returns `[]` with status 200. The same query in the SQL editor returns 42 rows. No error is logged.
     validations:
       required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Stack and versions
+      description: Versions of every package involved. `npm ls next @supabase/supabase-js @supabase/ssr` is a good start.
+      placeholder: |
+        next 15.3.2
+        @supabase/supabase-js 2.49.4
+        @supabase/ssr 0.6.1
+        PostgreSQL 15 (Supabase hosted)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Where it runs. Host, runtime (Node.js or Edge), region, connection mode (direct, session or transaction pooler), and whether it also happens locally.
+      placeholder: |
+        Vercel, Node.js runtime, region fra1
+        Supabase hosted, eu-central-1, transaction pooler (port 6543)
+        Works locally with `supabase start`; fails in preview and production
+    validations:
+      required: true
+
+  - type: dropdown
+    id: evidence_level
+    attributes:
+      label: How is this backed up?
+      options:
+        - I can reproduce it (steps or a minimal repro below)
+        - I have logs or traces from the incident, but no repro
+        - An upstream issue or official doc describes the same failure
+        - Several of the above
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Log lines, traces, query plans, repro steps, or links to upstream issues. Put log output in fenced code blocks. Redact secrets and personal data first.
+    validations:
+      required: true
+
   - type: textarea
     id: root_cause
     attributes:
-      label: Root cause
-      description: The mechanism that produced the symptom, not the trigger.
+      label: Root cause (if known)
+      description: The mechanism that produced the symptom, not just the trigger. Leave empty or write "unknown" if you have not found it. That is still useful.
       placeholder: |
-        The handler dedupes on stripe_event_id but the side effects (entitlement grant, ledger row) are not independently idempotent. A crash between the dedup insert and the side-effect commit leaves the event in a non-final state.
+        RLS is enabled on `projects`, but no `select` policy matches the `authenticated` role. Local tests used the `service_role` key, which bypasses RLS.
     validations:
-      required: true
+      required: false
+
   - type: textarea
     id: fix
     attributes:
-      label: Fix pattern
-      description: What the operator should do. Actionable steps, not principles.
+      label: Fix
+      description: What you changed, as concrete steps, SQL or code. Say how you confirmed the fix worked.
       placeholder: |
-        Track processing state on the event row (received / processing / processed / failed), claim the event before running side effects, return 200 only after side effects commit, and add a unique constraint on (stripe_event_id, side_effect_name) per business table.
+        Added a `select` policy scoped to `auth.uid()` and re-ran the query with the authenticated client. It returns 42 rows.
+    validations:
+      required: false
+
+  - type: textarea
+    id: prevention
+    attributes:
+      label: Prevention
+      description: What stops it coming back, such as a test, a CI check, a checklist line or a detection query.
+      placeholder: |
+        pgTAP test that runs the query as `authenticated` and as `anon`; review checklist line "every table with RLS has a select policy".
+    validations:
+      required: false
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: Primary sources
+      description: One per line. Official docs, upstream GitHub issues or PRs, changelogs or release notes that confirm the root cause or the fix. Blog posts are fine as extra context, but not as the only source.
+      placeholder: |
+        https://supabase.com/docs/guides/database/postgres/row-level-security
     validations:
       required: true
+
   - type: input
-    id: reference
+    id: related
     attributes:
-      label: Reference asset
-      description: A link to a reusable asset in this repo (playbook, SQL template, checklist) that prevents the regression. Format: relative path.
-      placeholder: reference/playbooks/stripe-webhook-test-plan.md
+      label: Related incidents (optional)
+      description: Existing INC-0xx entries this is close to, if any.
+      placeholder: INC-002, INC-018
     validations:
       required: false
+
   - type: input
-    id: external
+    id: credit
     attributes:
-      label: External reference (optional)
-      description: A vetted external link that documents the failure mode (Stripe doc, Supabase doc, maintained OSS repo). Skip if none.
-      placeholder: https://docs.stripe.com/webhooks
+      label: How should we credit you?
+      description: The name or GitHub handle for the credit line in the incident file and in the release notes. Write "no credit" if you prefer.
+      placeholder: "@your-handle"
     validations:
       required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched the Production Incident Index and existing issues for this incident.
+          required: true
+        - label: I removed keys, tokens, connection strings and personal data from everything above.
+          required: true
+        - label: I agree that this report may be edited and published in this repository under its MIT licence.
+          required: true

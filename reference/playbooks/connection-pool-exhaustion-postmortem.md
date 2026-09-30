@@ -16,7 +16,7 @@ connection terminated
 ```
 
 ```
-Tenant or user not found   (Supavisor — its pool is saturated and it rejects new tenants)
+Max client connections reached   (Supavisor — the pooler or Postgres rejected a request for more connections)
 ```
 
 HTTP 500/502 spikes on every route that touches the database. The app heals on its own when traffic drops, then breaks again on the next spike. `pg_stat_activity` shows connections climbing to `max_connections` and staying there.
@@ -32,7 +32,7 @@ sequenceDiagram
     V->>S: each invocation opens a client (no pool reuse)
     S->>DB: hands out up to P backend connections
     Note over S: P < N → requests queue / fail fast
-    S-->>V: Tenant or user not found / connection terminated
+    S-->>V: Max client connections reached / connection terminated
     V->>DB: bypassed — some clients still hit db:5432 directly
     Note over DB: backends reach M → "remaining connection slots are reserved"
     DB-->>V: 500 / connection terminated
@@ -68,7 +68,7 @@ At 50 concurrent lambdas × `max: 10`, that is 500 client connections against a 
 
 ### Cause 2 — Supavisor pool size vs. serverless fan-out: default pool too small
 
-Even with the **pooler** string (`…pooler.supabase.com:6543`, transaction mode), Supavisor has a per-project pool sized against your compute add-on. The default is conservative. If peak concurrent serverless invocations exceed the pool, Supavisor queues or rejects — you see `Tenant or user not found` and `connection terminated` instead of the Postgres error, but the user-facing symptom (HTTP 500 on data routes) is identical. Supabase's guidance: if you use PostgREST heavily, cap the pool at ~40% of `max_connections`; otherwise you can commit up to ~80%, leaving room for Auth, Storage, and internal services.
+Even with the **pooler** string (`…pooler.supabase.com:6543`, transaction mode), Supavisor has a per-project pool sized against your compute add-on. The default is conservative. If peak concurrent serverless invocations exceed the pool, Supavisor queues or rejects — you see `Max client connections reached` and `connection terminated` instead of the Postgres error (note: `Tenant or user not found` is **not** a saturation error — Supabase documents it as a mistyped pooler host or a username missing the `.<project-ref>` suffix), but the user-facing symptom (HTTP 500 on data routes) is identical. Supabase's guidance: if you use PostgREST heavily, cap the pool at ~40% of `max_connections`; otherwise you can commit up to ~80%, leaving room for Auth, Storage, and internal services.
 
 Repro: same Route Handler as Cause 1, but `DATABASE_URL` points at `…pooler.supabase.com:6543` with the default pool size. Run a k6 load test (below) at 200 RPS — requests start failing once concurrent invocations exceed the configured pool size.
 
@@ -119,7 +119,7 @@ Repro (Prisma) — missing `?pgbouncer=true`:
 ```env
 # WRONG: no pgbouncer=true → Prisma issues prepared statements that Supavisor
 # transaction mode cannot route.
-DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:6543/postgres"
+DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-<N>-<region>.pooler.supabase.com:6543/postgres"
 ```
 
 ### Cause 5 — Direct (session, 5432) vs pooler (transaction, 6543) connection string mixup
@@ -135,8 +135,8 @@ Repro (Prisma with both URLs swapped):
 
 ```env
 # WRONG — app should use the pooler, migrations should use the direct.
-DATABASE_URL="postgresql://postgres.<ref>:<pw>@db.<ref>.supabase.co:5432/postgres"   # app exhausts DB
-DIRECT_URL="postgresql://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:6543/postgres"  # migrations hang
+DATABASE_URL="postgresql://postgres:<pw>@db.<ref>.supabase.co:5432/postgres"   # app exhausts DB
+DIRECT_URL="postgresql://postgres.<ref>:<pw>@aws-<N>-<region>.pooler.supabase.com:6543/postgres"  # migrations hang
 ```
 
 ## Detection (run these now)
@@ -257,11 +257,14 @@ BASE=https://your-app.vercel.app k6 run /tmp/load.js
 | `aws-<region>.pooler.supabase.com:6543` | 6543 | **Transaction pooler** | **Serverless / edge / per-request workloads (your Vercel app)** |
 
 ```env
+# Copy both strings from the dashboard Connect dialog; do not compose them.
+# Shared pooler: user is postgres.<ref>, host is aws-<N>-<region> (<N> is a pooler
+# cluster index — aws-0 is not a safe default). Direct connection: user is plain postgres.
 # Runtime — transaction pooler (Vercel Functions)
-DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:6543/postgres"
+DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-<N>-<region>.pooler.supabase.com:6543/postgres"
 
 # Migrations — direct connection (drizzle-kit, prisma migrate)
-DIRECT_URL="postgresql://postgres.<ref>:<pw>@db.<ref>.supabase.co:5432/postgres"
+DIRECT_URL="postgresql://postgres:<pw>@db.<ref>.supabase.co:5432/postgres"
 ```
 
 ### 2. Disable prepared statements in your ORM (transaction mode)
@@ -287,10 +290,10 @@ Prisma — append `?pgbouncer=true` and use a driver adapter:
 
 ```env
 # Pooled — Prisma Client at runtime
-DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DATABASE_URL="postgresql://postgres.<ref>:<pw>@aws-<N>-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true"
 
 # Direct — Prisma CLI for migrations
-DIRECT_URL="postgresql://postgres.<ref>:<pw>@db.<ref>.supabase.co:5432/postgres"
+DIRECT_URL="postgresql://postgres:<pw>@db.<ref>.supabase.co:5432/postgres"
 ```
 
 ```ts
@@ -354,7 +357,7 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
     } catch (err) {
       if (i === attempts - 1) throw err
       const msg = String(err?.message ?? err)
-      if (!/connection terminated|Tenant or user not found|remaining connection slots/i.test(msg)) throw err
+      if (!/connection terminated|Max client connections reached|remaining connection slots/i.test(msg)) throw err
       await new Promise(r => setTimeout(r, 50 * 2 ** i + Math.random() * 50))
     }
   }
@@ -364,7 +367,7 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
 
 ### 6. When to move off the shared pooler
 
-If you have outgrown the shared Supavisor pool (saturated at your compute tier under real load), the move is to the **Dedicated Pooler (PgBouncer)** on paid tiers — co-located with the DB for lower latency and a pool size you fully control. The dedicated pooler endpoint is `db.<ref>.supabase.co:6543` on paid plans. Temjo benchmarks cited by Supabase show PgBouncer ~2× the TPS of the shared Supavisor because it skips the cross-server hop.
+If you have outgrown the shared Supavisor pool (saturated at your compute tier under real load), the move is to the **Dedicated Pooler (PgBouncer)** on paid tiers — co-located with the DB for lower latency and a pool size you fully control. The dedicated pooler endpoint is `db.<ref>.supabase.co:6543` on paid plans. Supabase describes the Dedicated Pooler, on the Pro Plan and above, as offering "lower latency, better performance, and higher reliability" ([Dedicated Poolers announcement](https://supabase.com/blog/dedicated-poolers)); benchmark it against your own workload before assuming a specific throughput gain.
 
 ## Prevention
 
@@ -447,6 +450,8 @@ Only mark the incident resolved when a 100-VU 60s k6 run against preview shows <
 
 - Supabase — connecting to Postgres (direct vs. pooler, ports 5432/6543, transaction vs. session mode): https://supabase.com/docs/guides/database/connecting-to-postgres
 - Supabase — connection management (pool size vs. `max_connections`, `pg_stat_activity` monitoring, dashboard charts): https://supabase.com/docs/guides/database/connection-management
+- Supabase — Prisma troubleshooting (`Max client connections reached` in transaction, session, and direct modes): https://supabase.com/docs/guides/database/prisma/prisma-troubleshooting
+- Supabase — troubleshooting `Tenant or user not found` (wrong pooler host or username without project ref — not pool saturation): https://supabase.com/docs/guides/troubleshooting/tenant-or-user-not-found
 - Supabase — Supavisor (pooler architecture, per-tenant pool sizing, Prometheus `/metrics`): https://supabase.com/docs/guides/database/supavisor
 - Supabase — Drizzle guide (transaction pooler requires `prepare: false`): https://supabase.com/docs/guides/database/drizzle
 - Drizzle ORM — get started with Supabase (turn off `prepare` for Transaction pool mode): https://orm.drizzle.team/docs/get-started/supabase-new

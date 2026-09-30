@@ -1,48 +1,123 @@
-name: Resource request
-description: Suggest a resource for the list.
-title: "Add resource: "
+name: Suggest a resource
+description: A doc, repository, tool or write-up that helps fix or prevent a Next.js + Supabase production incident.
+title: "Resource: "
 labels:
   - resource
 body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository indexes production incidents. Resources are listed when they help someone diagnose, fix or prevent one. Please read the [contributing guide](https://github.com/mahdibrr/awesome-nextjs-supabase/blob/main/CONTRIBUTING.md) first.
+
+        Paid and freemium products are allowed, but they go in **Tools and Services** with a pricing marker, and any affiliation must be disclosed below. Affiliate or referral links are not accepted.
+
   - type: input
     id: url
     attributes:
-      label: Resource URL
-      description: Link to the resource you want to add.
-      placeholder: https://www.iloveblogs.blog/guides/building-saas-nextjs-supabase
+      label: URL
+      placeholder: https://supabase.com/docs/guides/database/testing
     validations:
       required: true
+
   - type: input
     id: title
     attributes:
-      label: Resource title
-      description: The title that should appear in the README.
+      label: Title
+      description: The name as it should appear in the list.
+      placeholder: Supabase Database Testing (pgTAP)
     validations:
       required: true
+
   - type: dropdown
-    id: section
+    id: area
     attributes:
-      label: Best section
+      label: Area
+      description: The closest topic. The maintainer will choose the exact section.
       options:
-        - Core Guides
-        - Next.js App Router
-        - Supabase Auth & Security
-        - Database, RLS & Postgres
-        - SaaS Architecture
-        - Stripe & Billing
-        - Realtime Apps
-        - Performance & Caching
-        - AI, pgvector & RAG
-        - Testing, CI/CD & Deployment
-        - Production Fixes
-        - Comparisons & Decision Guides
-        - Official References
+        - Auth and sessions
+        - RLS and security
+        - Production debugging
+        - Testing
+        - Server Actions, caching and revalidation
+        - Stripe and billing
+        - SaaS architecture and open-source examples
+        - Realtime, Edge Functions and background work
+        - AI, pgvector and RAG
+        - CI/CD, migrations and deployment
+        - Observability and performance
+        - Tools and Services (a product or vendor)
+        - Not sure
     validations:
       required: true
+
   - type: textarea
-    id: reason
+    id: problem
     attributes:
-      label: Why should this be included?
-      description: Explain the practical value for production Next.js and Supabase developers.
+      label: Which production problem does it help with?
+      description: Name the symptom or incident (an INC-0xx number if one fits) and say what the resource lets you do about it. "Great resource" is not enough to go on.
+      placeholder: |
+        INC-002 and INC-015. Shows how to test RLS policies as `anon` and `authenticated` with pgTAP, so a missing `select` policy fails in CI instead of in production.
     validations:
       required: true
+
+  - type: textarea
+    id: entry
+    attributes:
+      label: Proposed entry
+      description: |
+        For Curated Resources, one bullet: `- [Title](url) - Short, neutral description.`
+        For Tools and Services, one table row: `| [Name](url) (pricing) | What it solves |`
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: pricing
+    attributes:
+      label: Pricing
+      options:
+        - Not a product (docs, article or repository)
+        - Free or open source
+        - Free tier with paid plans
+        - Paid only
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affiliation
+    attributes:
+      label: Your affiliation with this resource
+      options:
+        - None
+        - I wrote it, own it, or work for the company behind it
+        - I am paid, sponsored or otherwise compensated to promote it
+        - Other (explain below)
+    validations:
+      required: true
+
+  - type: input
+    id: affiliation_detail
+    attributes:
+      label: Affiliation details
+      description: Required if you picked anything other than "None". A disclosure does not count against a suggestion; a missing disclosure does.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: standards
+    attributes:
+      label: Curation standards
+      description: A suggestion that does not meet these will be closed with an explanation.
+      options:
+        - label: It applies to real production work with Next.js and Supabase. It is not a tutorial-only resource.
+          required: true
+        - label: It is maintained. If it is not, the entry says so.
+          required: true
+        - label: It is not a duplicate of a link already in the list, or it solves a different production problem.
+          required: true
+        - label: The content is publicly readable without an account or payment wall.
+          required: true
+        - label: The description is neutral, with no keyword stuffing or marketing language.
+          required: true
+        - label: I am suggesting this resource on its own merits and not as part of a batch sent to many lists.
+          required: true

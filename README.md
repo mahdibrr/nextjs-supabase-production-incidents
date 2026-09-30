@@ -1,32 +1,60 @@
-# Awesome Supabase and Next.js[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
+# Next.js + Supabase Production Incidents
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Link Check](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/link-check.yml/badge.svg)](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/link-check.yml)
-[![Contributors](https://img.shields.io/github/contributors/mahdibrr/awesome-nextjs-supabase)](https://github.com/mahdibrr/awesome-nextjs-supabase/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/mahdibrr/awesome-nextjs-supabase)](https://github.com/mahdibrr/awesome-nextjs-supabase/commits/main)
-[![Good First Issues](https://img.shields.io/github/issues/mahdibrr/awesome-nextjs-supabase/good%20first%20issue)](https://github.com/mahdibrr/awesome-nextjs-supabase/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+[![Examples CI](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/examples-ci.yml/badge.svg)](https://github.com/mahdibrr/awesome-nextjs-supabase/actions/workflows/examples-ci.yml)
 
-A curated list of Next.js + Supabase resources focused on what breaks **after** you deploy: RLS empty-result bugs, SSR session loss, middleware redirect loops, Stripe webhook reliability, and cache invalidation after Server Actions.
+**The bugs that appear after you deploy** — indexed by the symptom you see, with the root cause, the fix, and a way to prove the fix works.
 
-Most tutorials stop at "it works on localhost." This list starts where production problems begin.
+**24 incidents** (INC-001 to INC-024) · **11 postmortems** with detection queries · **3 runnable examples** that reproduce 13 of the incidents (5 pgTAP suites, 15 Vitest tests) · **7 checklists** · an RLS audit script.
+
+[Browse incidents](reference/incident-index/README.md) · [Run the examples](examples/README.md) · [Pre-deploy checklists](content/production-checklists/README.md) · [Report an incident](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml)
 
 > **Building with AI coding tools?** Drop [`AGENTS.md`](AGENTS.md) (and [`.cursor/rules/`](.cursor/rules/nextjs-supabase-production.mdc)) into your repo so Cursor, Copilot, and Claude Code stop generating the RLS, SSR-session, and Stripe-webhook bugs that only surface in production.
 
+## Start from the symptom
+
+| Symptom | Root cause | Fix | Read |
+| --- | --- | --- | --- |
+| Supabase returns `[]` for rows that exist (INC-002) | RLS is enabled but no `select` policy matches the `authenticated` role; local tests used `service_role`. | Add scoped `select` policies and test as the real authenticated user. | [Postmortem](reference/playbooks/rls-empty-array-postmortem.md) · [pgTAP example](examples/rls-pgtap/README.md) |
+| A tenant sees another tenant's rows through Prisma or Drizzle (INC-018) | The ORM connects as `service_role` or `postgres` (`BYPASSRLS`), so policies are never evaluated against the user's JWT. | Use `supabase-js` for tenant-scoped queries, or set the role and `request.jwt.claims` per request. | [Postmortem](reference/playbooks/orm-bypassing-rls-postmortem.md) |
+| Private Storage files readable by other users, or uploads return 403 (INC-021) | Public bucket or unscoped `storage.objects` policy; missing `update` policy breaks upserts. | Private bucket, four owner-scoped object policies, short-lived signed URLs issued server-side. | [Postmortem](reference/playbooks/storage-rls-upload-postmortem.md) |
+| `revalidatePath` runs but the page still shows old data (INC-008) | The revalidated path or tag does not match the cached fetch, or the segment is static. | Revalidate the exact path or tag tied to the fetch; make user-scoped segments dynamic. | [Postmortem](reference/playbooks/revalidate-stale-postmortem.md) · [Vitest example](examples/nextjs15-cache-and-params/README.md) |
+| Build fails or `params.id` is `undefined` after upgrading to Next.js 15 (INC-020) | `params` and `searchParams` are Promises in Next.js 15. | `const { id } = await params;` in every server entry; run the `next-async-request-api` codemod. | [Postmortem](reference/playbooks/nextjs15-async-params-postmortem.md) · [Vitest example](examples/nextjs15-cache-and-params/README.md) |
+| `remaining connection slots are reserved…` under load (INC-017) | Serverless fan-out opens more Postgres connections than the pool allows; direct and pooler strings mixed up. | Transaction pooler (6543) at runtime, direct (5432) for migrations only, prepared statements off. | [Postmortem](reference/playbooks/connection-pool-exhaustion-postmortem.md) |
+| Stripe webhook returns 200 but subscription state is wrong or duplicated (INC-007, INC-016) | Event IDs deduplicated, but side effects are not idempotent and processing state is not tracked. | Track `received → processing → processed/failed`; return 200 only after side effects commit. | [Test plan](reference/playbooks/stripe-webhook-test-plan.md) · [Vitest example](examples/stripe-webhook-idempotency/README.md) |
+| Realtime list is stale, missing or duplicated after the tab was in the background (INC-019) | Background tabs are throttled and Realtime does not backfill changes missed while disconnected. | Resync with a watermarked catch-up query on every (re)subscribe and on `visibilitychange`; dedupe by primary key. | [Postmortem](reference/playbooks/realtime-tab-suspension-postmortem.md) |
+| A user opens the app signed in as someone else (INC-022) | A session refresh's `Set-Cookie` response is cached by ISR or a CDN, or a Supabase client is shared across requests. | No ISR on auth routes; apply the `setAll` cache headers (`@supabase/ssr` ≥ 0.10.0); create the client per request. | [Postmortem](reference/playbooks/session-leak-cached-set-cookie-postmortem.md) |
+| Server logs warn `getSession() … could be insecure!` (INC-023) | Server code decides identity from a cookie it never verified. | `getClaims()` for identity; `getUser()` where revoked sessions matter. | [Postmortem](reference/playbooks/getsession-server-trust-postmortem.md) |
+| `FATAL: Tenant or user not found` after switching to the pooler (INC-024) | Pooler username lacks `.<project-ref>`, or the host was typed instead of copied. | Copy the whole string from the Connect dialog; replace only the password. | [Postmortem](reference/playbooks/pooler-tenant-not-found-postmortem.md) |
+| OAuth login loops back to `/login` (INC-004) | The middleware matcher protects `/auth/callback` or the login route. | Exclude callback and login routes from the matcher; verify the cookie write path. | [Incident index](reference/incident-index/README.md) |
+
+All 24 incidents are in the [Production Incident Index](reference/incident-index/README.md). For a broader symptom list grouped by area (auth, RLS, deployment, caching, billing, database, realtime) with links to the official docs, see the [Symptom Reference](content/incidents/README.md).
+
+## What each incident includes
+
+Every entry in the [Incident Index](reference/incident-index/README.md) gives:
+
+- the **problem**, stated as the symptom or error you see;
+- the **stack layer** involved (Next.js, Supabase, Stripe, PostgreSQL, ORM);
+- the **root cause** and the **fix**;
+- a link to a **reusable asset** in this repo: a postmortem, playbook, checklist, SQL script, template or runnable example.
+
+The eleven postmortems in [`reference/playbooks/`](reference/playbooks/) go further. Each has a symptom and impact section, the root cause broken into distinct causes (most with a minimal repro), **detection queries** to run now, the fix, prevention steps (CI gates, review checklist lines), references to the official docs, and a "Last verified" date.
+
+The [runnable examples](examples/README.md) ship the **broken** and the **fixed** implementation side by side, with tests that reproduce the bug and prove the fix.
+
 ## Contents
 
-- [Production Incident Index](#production-incident-index)
 - [Production Flows](#production-flows)
 - [Who This Is For](#who-this-is-for)
 - [Reference Assets](#reference-assets)
 - [Production SaaS Stack](#production-saas-stack)
 - [Curated Resources](#curated-resources)
 - [Tools and Services](#tools-and-services)
+- [Related](#related)
 - [Curation Standards](#curation-standards)
-
-## Production Incident Index
-
-The fastest entry point when you are debugging under time pressure. It maps **symptom → root cause → fix → reusable reference asset**.
-
-Open the Production Incident Index in the Reference Assets section below. When an incident hits: find the symptom, apply the fix, then run the linked checklist or SQL asset to prevent the regression.
+- [Contributing](#contributing)
 
 ## Production Flows
 
@@ -96,7 +124,7 @@ Practical, copy-ready assets maintained in this repo.
 | [Migration Rollback Playbook](reference/playbooks/migration-rollback-playbook.md)                  | Recovering from a failed release.                  |
 | [Server Actions Debugging Matrix](reference/playbooks/server-actions-debugging-matrix.md)          | Diagnosing stale UI after a mutation.              |
 | [Snippets](content/snippets/README.md)                                                             | Reusable auth, middleware, RLS, and API helpers.   |
-| [Open Source Examples](content/open-source-examples/README.md)                                     | Studying real production-grade reference projects. |
+| [Open Source Examples](content/open-source-examples/README.md)                                     | Studying real production reference projects.        |
 | [Runnable Examples](examples/README.md)                                                            | Run the bug, then watch the fix pass in CI.        |
 
 ## Production SaaS Stack
@@ -150,8 +178,8 @@ Practical, copy-ready assets maintained in this repo.
 
 - [Next.js Server Actions](https://nextjs.org/docs/app/getting-started/mutating-data) - Mutation semantics and runtime behavior.
 - [Next.js Caching and Revalidating](https://nextjs.org/docs/app/getting-started/caching-and-revalidating) - Invalidation mechanics and stale-data control.
-- [Supabase Auth Redirect Not Working](https://www.iloveblogs.blog/post/supabase-auth-redirect-fix) - App Router callback edge cases in production.
-- [revalidatePath Debugging Guide](https://www.iloveblogs.blog/post/nextjs-15-caching-explained) - Real-world invalidation pitfalls and fixes.
+- [Supabase Auth Redirect Not Working](https://www.iloveblogs.blog/post/supabase-auth-redirect-fix) (maintainer's site) - App Router callback edge cases in production.
+- [revalidatePath Debugging Guide](https://www.iloveblogs.blog/post/nextjs-15-caching-explained) (maintainer's site) - Real-world invalidation pitfalls and fixes.
 
 ### Stripe and Billing
 
@@ -183,8 +211,8 @@ Practical, copy-ready assets maintained in this repo.
 - [Vercel AI SDK](https://ai-sdk.dev/docs/introduction) - TypeScript toolkit for streaming, tool calls, and agents in Next.js.
 - [Supabase MCP Server](https://supabase.com/docs/guides/getting-started/mcp) - Connect AI coding tools to your project over the Model Context Protocol.
 - [supabase-community/nextjs-openai-doc-search](https://github.com/supabase-community/nextjs-openai-doc-search) - Practical RAG baseline.
-- [Vercel AI Chatbot](https://github.com/vercel/chatbot) - Production-grade chat architecture reference.
-- [Production RAG Guide for Next.js and Supabase](https://www.iloveblogs.blog/guides/ai-integration-nextjs-supabase) - Operational constraints for retrieval systems.
+- [Vercel AI Chatbot](https://github.com/vercel/chatbot) - Chat architecture reference for Next.js.
+- [Production RAG Guide for Next.js and Supabase](https://www.iloveblogs.blog/guides/ai-integration-nextjs-supabase) (maintainer's site) - Operational constraints for retrieval systems.
 
 ### CI/CD, Migrations, and Deployment
 
@@ -251,6 +279,13 @@ Decision tables for the choices this stack actually forces. The **baseline** is 
 | [Supabase Self-Hosting](https://supabase.com/docs/guides/self-hosting)         | Running your own Supabase via Docker or Kubernetes.                                      |
 | [Coolify](https://coolify.io)                                                  | Self-hostable PaaS for deploying Next.js and a self-hosted Supabase on your own servers. |
 
+## Related
+
+Both are by the maintainer of this repository.
+
+- [dev-error-explainers](https://github.com/mahdibrr/dev-error-explainers) - Deterministic, offline explainers for CORS, ESM/CJS, npm ERESOLVE, ChunkLoadError, `DATABASE_URL` and `next build` errors.
+- [iloveblogs.blog tools](https://www.iloveblogs.blog/tools) - Browser tools: paste an error message and get an explanation.
+
 ## Curation Standards
 
 - No low-effort list spam.
@@ -263,7 +298,7 @@ Resources are selected for operational value, not volume.
 
 ## Contributing
 
-Pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for format and quality requirements, then open a PR or an issue for broken links, incidents, or curation gaps.
+Pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for format and quality requirements. To add an incident, use the [incident report form](https://github.com/mahdibrr/awesome-nextjs-supabase/issues/new?template=incident_report.yml); for broken links or curation gaps, open a PR or an issue.
 
 Help is most needed in RLS incidents, deployment failures, Stripe reliability, Auth edge cases, and monitoring references.
 
