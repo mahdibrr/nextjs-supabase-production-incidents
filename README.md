@@ -237,12 +237,14 @@ Practical, copy-ready assets maintained in this repo.
 
 Decision tables for the choices this stack actually forces. The **baseline** is the default that keeps everything inside Next.js + Supabase; alternatives are listed only when they earn their place with first-class integration.
 
+Paid products carry a pricing marker: **(freemium)** has a free tier, **(paid)** has none. Open-source libraries carry no marker. Affiliations are disclosed, including the maintainer's own.
+
 ### Auth
 
 | Option                        | Choose it when                                                                                              |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | **Supabase Auth** (baseline)  | You want cookie-based SSR sessions wired directly to RLS, no extra vendor.                                  |
-| [Clerk](https://clerk.com)    | You need prebuilt UI, organizations, and MFA out of the box; integrates with Supabase via third-party auth. |
+| [Clerk](https://clerk.com) (freemium) | You need prebuilt UI, organizations, and MFA out of the box; integrates with Supabase via third-party auth. |
 | [Auth.js](https://authjs.dev) | You want framework-native auth with many OAuth providers and full control over the session layer.           |
 
 ### Data Access and Type Safety
@@ -259,25 +261,25 @@ Decision tables for the choices this stack actually forces. The **baseline** is 
 | Option                             | Choose it when                                                                  |
 | ---------------------------------- | ------------------------------------------------------------------------------- |
 | **Supabase Queues** (baseline)     | You want a Postgres-native durable queue without leaving the database.          |
-| [Inngest](https://inngest.com)     | You want durable multi-step workflows and event-driven jobs deployed on Vercel. |
-| [Trigger.dev](https://trigger.dev) | You want long-running TypeScript tasks with retries, queues, and observability. |
+| [Inngest](https://inngest.com) (freemium) | You want durable multi-step workflows and event-driven jobs deployed on Vercel. |
+| [Trigger.dev](https://trigger.dev) (open source, freemium cloud) | You want long-running TypeScript tasks with retries, queues, and observability. |
 
 ### Payments and Billing
 
 | Option                    | Choose it when                                                                               |
 | ------------------------- | -------------------------------------------------------------------------------------------- |
 | **Stripe** (baseline)     | You need full control over subscriptions, metering, and webhook-driven entitlements.         |
-| [Polar](https://polar.sh) | You want a Merchant of Record that handles tax and invoicing for indie SaaS and AI products. |
+| [Polar](https://polar.sh) (paid: fees per transaction) | You want a Merchant of Record that handles tax and invoicing for indie SaaS and AI products. |
 
 ### Supporting Tools
 
 | Tool                                                                           | Solves                                                                                   |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| [Resend](https://resend.com)                                                   | Transactional email from Next.js with React Email templates.                             |
-| [Upstash Ratelimit](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview) | Connectionless rate limiting for API routes, middleware, and Server Actions.             |
+| [Resend](https://resend.com) (freemium) | Transactional email from Next.js with React Email templates.                             |
+| [Upstash Ratelimit](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview) (freemium) | Connectionless rate limiting for API routes, middleware, and Server Actions.             |
 | [t3-env](https://github.com/t3-oss/t3-env)                                     | Type-safe, validated environment variables across server and client boundaries.          |
 | [Supabase Self-Hosting](https://supabase.com/docs/guides/self-hosting)         | Running your own Supabase via Docker or Kubernetes.                                      |
-| [Coolify](https://coolify.io)                                                  | Self-hostable PaaS for deploying Next.js and a self-hosted Supabase on your own servers. |
+| [Coolify](https://coolify.io) (open source, paid cloud) | Self-hostable PaaS for deploying Next.js and a self-hosted Supabase on your own servers. |
 
 ## Related
 
@@ -293,6 +295,7 @@ Both are by the maintainer of this repository.
 - No duplicate links unless they solve different production problems.
 - No tutorial-only resources without production applicability.
 - No keyword stuffing in descriptions.
+- Paid and freemium products are listed only in Tools and Services, with a pricing marker; affiliations are disclosed.
 
 Resources are selected for operational value, not volume.
 
