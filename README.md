@@ -306,3 +306,9 @@ Pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for format and
 Help is most needed in RLS incidents, deployment failures, Stripe reliability, Auth edge cases, and monitoring references.
 
 This repository is an independent community resource and is not affiliated with Vercel, Next.js, Supabase, or Stripe.
+
+## Maintainer and project context
+
+Maintained by [Mahdi Ben Rhouma](https://mahdibr.online/about/).
+
+- [Project notes and runnable examples](https://mahdibr.online/open-source/nextjs-supabase-production-incidents/) - A walkthrough of the RLS, webhook idempotency and Next.js cache examples.
