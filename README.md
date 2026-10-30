@@ -165,6 +165,7 @@ Practical, copy-ready assets maintained in this repo.
 - [Supabase Troubleshooting](https://supabase.com/docs/guides/troubleshooting) - Official issue diagnosis entry point.
 - [Chrome DevTools Network Panel](https://developer.chrome.com/docs/devtools/network/) - Request, cookie, and redirect inspection.
 - [Vercel Runtime Logs](https://vercel.com/docs/logs/runtime) - Production route and runtime diagnostics.
+- [FixStack](https://getfixstack.com/platforms/supabase/) - Free, no-signup pages for common Supabase, Next.js, Vercel and Stripe error messages (RLS violations, `permission denied for table`, hydration mismatches, webhook signature failures), each with the cause and a step-by-step fix.
 
 ### Testing
 
